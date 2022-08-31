@@ -113,7 +113,7 @@ func TestInsertStmt(t *testing.T) {
 				sql.NullString{String: "Tom", Valid: true}, &sql.NullInt32{Int32: 18, Valid: true}, "China", "DM"},
 			wantSQL: "INSERT INTO `Customer`(`CreateTime`,`UpdateTime`,`Id`,`NickName`,`Age`,`Address`,`Company`) VALUES(?,?,?,?,?,?,?);",
 		},
-		/*{
+		{
 			// 使用指针的组合，我们不会深入解析，会出现很奇怪的结果
 			name: "pointer composition",
 			entity: InvalidUser{
@@ -127,11 +127,10 @@ func TestInsertStmt(t *testing.T) {
 		{
 			name:   "not embed field",
 			entity: Seller{User: User{}},
-			// 顺便测试一下单个字段
+			// 顺便测试一下单个字段 //单子段为什么需要直接返回单一的args而不是分开field，明明传入的时候还是需要分开的？
 			wantArgs: []interface{}{User{}},
 			wantSQL:  "INSERT INTO `Seller`(`User`) VALUES(?);",
 		},
-		*/
 	}
 
 	for _, tc := range testCases {
@@ -170,26 +169,24 @@ type Buyer struct {
 	Address string
 }
 
-/*
-	type InvalidUser struct {
-		*BaseEntity
-		Address string
-	}
-*/
+type InvalidUser struct {
+	*BaseEntity
+	Address string
+}
+
 type Customer struct {
 	Buyer
 	BaseEntity
 	Company string
 }
 
-/*
 // Seller 注意和 Buyer 的区别。在 Seller 这种模式下，我们会认为，它们是一个关联关系，比如说一对一关系
 // 而在 Buyer 的模式下，我们会认为它们是同一张表。
 
-	type Seller struct {
-		User User
-	}
-*/
+type Seller struct {
+	User User
+}
+
 func ptrInt64(val int64) *int64 {
 	return &val
 }
